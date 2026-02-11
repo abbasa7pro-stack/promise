@@ -3,29 +3,21 @@
 <head>
 <title>Promise Game for Zainy</title>
 
-<!-- MOBILE FULLSCREEN FIX -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
 <style>
 html, body{
   margin:0;
   padding:0;
-  height:100%;
-  font-family: Arial;
+  font-family:Arial;
   text-align:center;
   background:#ffe6f0;
   overflow:hidden;
 }
 
-h1{
-  color:#cc0066;
-  margin-top:10px;
-}
+h1{ color:#cc0066; }
 
-#info{
-  font-size:18px;
-  margin:8px;
-}
+#info{ font-size:18px; margin:8px; }
 
 .grid{
   display:grid;
@@ -38,7 +30,6 @@ h1{
   width:100%;
   aspect-ratio:1;
   perspective:1000px;
-  cursor:pointer;
 }
 
 .inner{
@@ -49,9 +40,7 @@ h1{
   transform-style: preserve-3d;
 }
 
-.card.flip .inner{
-  transform: rotateY(180deg);
-}
+.card.flip .inner{ transform: rotateY(180deg); }
 
 .front, .back{
   position:absolute;
@@ -66,22 +55,17 @@ h1{
   font-size:13px;
 }
 
-.front{
-  background:#ff66a3;
-  color:white;
-}
-
+.front{ background:#ff66a3; color:white; }
 .back{
   background:#cc0066;
   color:white;
   transform: rotateY(180deg);
 }
 
-/* Floating hearts */
+/* floating hearts */
 .heart{
   position:fixed;
   bottom:-20px;
-  font-size:20px;
   color:#ff4d88;
   animation: float 6s linear infinite;
 }
@@ -91,9 +75,11 @@ h1{
   100%{ transform:translateY(-100vh); opacity:0;}
 }
 
-/* Puzzle */
+/* ending */
 #puzzle{
   display:none;
+  opacity:0;
+  transition:1s;
   margin-top:10px;
 }
 </style>
@@ -110,10 +96,25 @@ Time Left: <span id="timer">60</span>s
 
 <div class="grid" id="game"></div>
 
+<!-- ENDING -->
 <div id="puzzle">
-  <h2>Final Promise</h2>
-  <img src="https://i.imgur.com/3Xn7ZK4.png" width="220">
-  <p>I promise to always care for you, respect you, support you, and stay by your side in every situation ♥</p>
+  <button id="revealBtn" style="
+    padding:12px 20px;
+    font-size:16px;
+    background:#cc0066;
+    color:white;
+    border:none;
+    border-radius:8px;">
+    Tap to Reveal Message ♥
+  </button>
+
+  <div id="finalContent" style="display:none; margin-top:20px;">
+    <h2>My Biggest Promise</h2>
+
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Red_heart.svg/512px-Red_heart.svg.png" width="200">
+
+    <p id="typeText" style="font-size:16px; color:#cc0066;"></p>
+  </div>
 </div>
 
 <script>
@@ -127,7 +128,10 @@ const items = [
 "♥ I promise to listen to you patiently",
 "♥ I promise to stand by you in tough times",
 "♥ I promise to be honest with you",
-"Puzzle","Puzzle","Puzzle","Puzzle"
+"♥ I promise to value your happiness",
+"♥ I promise to understand you even in silence",
+"♥ I promise to never give up on you",
+"♥ I promise to always keep you in my prayers"
 ];
 
 items.sort(() => Math.random() - 0.5);
@@ -156,7 +160,7 @@ items.forEach(text=>{
       document.getElementById("score").innerText=score;
 
       if(revealed===items.length){
-        document.getElementById("puzzle").style.display="block";
+        showEnding();
       }
     }
   };
@@ -164,7 +168,7 @@ items.forEach(text=>{
   game.appendChild(card);
 });
 
-/* Timer */
+/* timer */
 setInterval(()=>{
   if(time>0){
     time--;
@@ -172,7 +176,7 @@ setInterval(()=>{
   }
 },1000);
 
-/* Floating Hearts */
+/* floating hearts */
 function heart(){
   let h=document.createElement("div");
   h.className="heart";
@@ -183,6 +187,37 @@ function heart(){
   setTimeout(()=>h.remove(),6000);
 }
 setInterval(heart,400);
+
+/* ending functions */
+function showEnding(){
+  const p=document.getElementById("puzzle");
+  p.style.display="block";
+  setTimeout(()=>{ p.style.opacity="1"; },200);
+}
+
+const finalText =
+"From all these little promises, there is one big truth — you are very special to me, and no matter what happens, I will always wish happiness, peace, and smiles for you. This game is just a small way to show how much you matter ♥";
+
+function typeWriter(){
+  let i=0;
+  const speed=40;
+  const area=document.getElementById("typeText");
+
+  function typing(){
+    if(i<finalText.length){
+      area.innerHTML+=finalText.charAt(i);
+      i++;
+      setTimeout(typing,speed);
+    }
+  }
+  typing();
+}
+
+document.getElementById("revealBtn").onclick=function(){
+  this.style.display="none";
+  document.getElementById("finalContent").style.display="block";
+  typeWriter();
+};
 
 </script>
 
