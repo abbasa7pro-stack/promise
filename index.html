@@ -1,223 +1,239 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Promise Game for Zainy</title>
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promise Day for Zainy</title>
 
 <style>
-html, body{
-  margin:0;
-  padding:0;
-  font-family:Arial;
-  text-align:center;
-  background:#ffe6f0;
-  overflow:hidden;
+body{
+margin:0;
+font-family:Arial, sans-serif;
+background:#ffdde1;
+overflow:hidden;
+text-align:center;
 }
 
-h1{ color:#cc0066; }
+h1{
+margin-top:10px;
+color:#b3003b;
+}
 
-#info{ font-size:18px; margin:8px; }
-
-.grid{
-  display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:10px;
-  padding:10px;
+#game{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+padding:15px;
 }
 
 .card{
-  width:100%;
-  aspect-ratio:1;
-  perspective:1000px;
+width:100%;
+height:90px;
+perspective:1000px;
 }
 
 .inner{
-  position:relative;
-  width:100%;
-  height:100%;
-  transition: transform 0.6s;
-  transform-style: preserve-3d;
+width:100%;
+height:100%;
+position:relative;
+transform-style:preserve-3d;
+transition:0.6s;
 }
 
-.card.flip .inner{ transform: rotateY(180deg); }
-
-.front, .back{
-  position:absolute;
-  width:100%;
-  height:100%;
-  backface-visibility:hidden;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:8px;
-  font-size:13px;
+.card.flipped .inner{
+transform:rotateY(180deg);
 }
 
-.front{ background:#ff66a3; color:white; }
+.front,.back{
+position:absolute;
+width:100%;
+height:100%;
+backface-visibility:hidden;
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+padding:10px;
+box-shadow:0 4px 8px rgba(0,0,0,0.2);
+}
+
+.front{
+background:#ff4d6d;
+color:white;
+}
+
 .back{
-  background:#cc0066;
-  color:white;
-  transform: rotateY(180deg);
+background:white;
+color:#b3003b;
+transform:rotateY(180deg);
 }
 
-/* floating hearts */
+#stats{
+display:flex;
+justify-content:space-around;
+font-size:18px;
+margin:5px;
+font-weight:bold;
+}
+
+#endScreen{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#fff;
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+animation:fadeIn 1s;
+}
+
+@keyframes fadeIn{
+from{opacity:0;}
+to{opacity:1;}
+}
+
+#revealBtn{
+padding:12px 20px;
+font-size:18px;
+background:#ff4d6d;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+#finalMsg{
+margin-top:20px;
+width:80%;
+font-size:20px;
+color:#b3003b;
+white-space:pre-line;
+display:none;
+}
+
 .heart{
-  position:fixed;
-  bottom:-20px;
-  color:#ff4d88;
-  animation: float 6s linear infinite;
+position:fixed;
+color:#ff4d6d;
+font-size:20px;
+animation:float 6s linear infinite;
 }
 
 @keyframes float{
-  0%{ transform:translateY(0); opacity:1;}
-  100%{ transform:translateY(-100vh); opacity:0;}
-}
-
-/* ending */
-#puzzle{
-  display:none;
-  opacity:0;
-  transition:1s;
-  margin-top:10px;
+0%{transform:translateY(100vh);}
+100%{transform:translateY(-10vh);}
 }
 </style>
 </head>
 
 <body>
 
-<h1>Promise Day Game for Zainy</h1>
+<h1>Promise Day for Zainy</h1>
 
-<div id="info">
-Score: <span id="score">0</span> |
-Time Left: <span id="timer">60</span>s
+<div id="stats">
+<div>Score: <span id="score">0</span></div>
+<div>Time: <span id="timer">60</span>s</div>
 </div>
 
-<div class="grid" id="game"></div>
+<div id="game"></div>
 
-<!-- ENDING -->
-<div id="puzzle">
-  <button id="revealBtn" style="
-    padding:12px 20px;
-    font-size:16px;
-    background:#cc0066;
-    color:white;
-    border:none;
-    border-radius:8px;">
-    Tap to Reveal Message ♥
-  </button>
-
-  <div id="finalContent" style="display:none; margin-top:20px;">
-    <h2>My Biggest Promise</h2>
-
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Red_heart.svg/512px-Red_heart.svg.png" width="200">
-
-    <p id="typeText" style="font-size:16px; color:#cc0066;"></p>
-  </div>
+<div id="endScreen">
+<button id="revealBtn">Tap to Reveal Message</button>
+<div id="finalMsg"></div>
 </div>
 
 <script>
 
-const items = [
-"♥ I promise to always care for you",
-"♥ I promise to respect your feelings",
-"♥ I promise to make you smile",
-"♥ I promise to support you always",
-"♥ I promise to never ignore you",
-"♥ I promise to listen to you patiently",
-"♥ I promise to stand by you in tough times",
-"♥ I promise to be honest with you",
-"♥ I promise to value your happiness",
-"♥ I promise to understand you even in silence",
-"♥ I promise to never give up on you",
-"♥ I promise to always keep you in my prayers"
+const promises = [
+"I promise to always respect you",
+"I promise to stand by you",
+"I promise to listen to you",
+"I promise to never hurt you intentionally",
+"I promise to support your dreams",
+"I promise to be honest with you",
+"I promise to make you smile",
+"I promise to always care for you"
 ];
 
-items.sort(() => Math.random() - 0.5);
+const game = document.getElementById("game");
+let score = 0;
+let opened = 0;
+let time = 60;
 
-let revealed=0;
-let score=0;
-let time=60;
+promises.forEach(text=>{
+const card = document.createElement("div");
+card.className="card";
 
-const game=document.getElementById("game");
+card.innerHTML=`
+<div class="inner">
+<div class="front">♥</div>
+<div class="back">${text}</div>
+</div>`;
 
-items.forEach(text=>{
-  let card=document.createElement("div");
-  card.className="card";
+card.onclick=()=>{
+if(!card.classList.contains("flipped")){
+card.classList.add("flipped");
+score++;
+opened++;
+document.getElementById("score").innerText=score;
 
-  card.innerHTML=`
-  <div class="inner">
-    <div class="front">Tap</div>
-    <div class="back">${text}</div>
-  </div>`;
+if(opened===promises.length){
+endGame();
+}
+}
+};
 
-  card.onclick=function(){
-    if(!card.classList.contains("flip")){
-      card.classList.add("flip");
-      revealed++;
-      score+=10;
-      document.getElementById("score").innerText=score;
-
-      if(revealed===items.length){
-        showEnding();
-      }
-    }
-  };
-
-  game.appendChild(card);
+game.appendChild(card);
 });
 
-/* timer */
-setInterval(()=>{
-  if(time>0){
-    time--;
-    document.getElementById("timer").innerText=time;
-  }
+function endGame(){
+clearInterval(timerInt);
+setTimeout(()=>{
+document.getElementById("endScreen").style.display="flex";
+},800);
+}
+
+let timerInt=setInterval(()=>{
+time--;
+document.getElementById("timer").innerText=time;
+if(time<=0) endGame();
 },1000);
 
-/* floating hearts */
-function heart(){
-  let h=document.createElement("div");
-  h.className="heart";
-  h.innerHTML="♥";
-  h.style.left=Math.random()*100+"vw";
-  h.style.fontSize=(20+Math.random()*20)+"px";
-  document.body.appendChild(h);
-  setTimeout(()=>h.remove(),6000);
-}
-setInterval(heart,400);
+const message =
+"Zainy,\n\n"+
+"These are not just words on cards.\n"+
+"They are promises from my heart.\n"+
+"I may not be perfect, but my intentions for you are always real.\n"+
+"Thank you for being someone so special in my life.\n\n"+
+"Happy Promise Day.";
 
-/* ending functions */
-function showEnding(){
-  const p=document.getElementById("puzzle");
-  p.style.display="block";
-  setTimeout(()=>{ p.style.opacity="1"; },200);
-}
-
-const finalText =
-"From all these little promises, there is one big truth — you are very special to me, and no matter what happens, I will always wish happiness, peace, and smiles for you. This game is just a small way to show how much you matter ♥";
-
-function typeWriter(){
-  let i=0;
-  const speed=40;
-  const area=document.getElementById("typeText");
-
-  function typing(){
-    if(i<finalText.length){
-      area.innerHTML+=finalText.charAt(i);
-      i++;
-      setTimeout(typing,speed);
-    }
-  }
-  typing();
-}
-
-document.getElementById("revealBtn").onclick=function(){
-  this.style.display="none";
-  document.getElementById("finalContent").style.display="block";
-  typeWriter();
+document.getElementById("revealBtn").onclick=()=>{
+const box=document.getElementById("finalMsg");
+box.style.display="block";
+typeWriter(box,message);
+document.getElementById("revealBtn").style.display="none";
 };
+
+function typeWriter(el,text,i=0){
+if(i<text.length){
+el.innerHTML+=text.charAt(i);
+setTimeout(()=>typeWriter(el,text,i+1),40);
+}
+}
+
+// floating hearts
+setInterval(()=>{
+const h=document.createElement("div");
+h.className="heart";
+h.innerText="♥";
+h.style.left=Math.random()*100+"vw";
+h.style.fontSize=10+Math.random()*30+"px";
+document.body.appendChild(h);
+setTimeout(()=>h.remove(),6000);
+},500);
 
 </script>
 
