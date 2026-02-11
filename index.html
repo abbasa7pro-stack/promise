@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Promise Game for Zainy</title>
+
+<!-- MOBILE FULLSCREEN FIX -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
+<style>
+html, body{
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family: Arial;
+  text-align:center;
+  background:#ffe6f0;
+  overflow:hidden;
+}
+
+h1{
+  color:#cc0066;
+  margin-top:10px;
+}
+
+#info{
+  font-size:18px;
+  margin:8px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:10px;
+  padding:10px;
+}
+
+.card{
+  width:100%;
+  aspect-ratio:1;
+  perspective:1000px;
+  cursor:pointer;
+}
+
+.inner{
+  position:relative;
+  width:100%;
+  height:100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flip .inner{
+  transform: rotateY(180deg);
+}
+
+.front, .back{
+  position:absolute;
+  width:100%;
+  height:100%;
+  backface-visibility:hidden;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:8px;
+  font-size:13px;
+}
+
+.front{
+  background:#ff66a3;
+  color:white;
+}
+
+.back{
+  background:#cc0066;
+  color:white;
+  transform: rotateY(180deg);
+}
+
+/* Floating hearts */
+.heart{
+  position:fixed;
+  bottom:-20px;
+  font-size:20px;
+  color:#ff4d88;
+  animation: float 6s linear infinite;
+}
+
+@keyframes float{
+  0%{ transform:translateY(0); opacity:1;}
+  100%{ transform:translateY(-100vh); opacity:0;}
+}
+
+/* Puzzle */
+#puzzle{
+  display:none;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Promise Day Game for Zainy</h1>
+
+<div id="info">
+Score: <span id="score">0</span> |
+Time Left: <span id="timer">60</span>s
+</div>
+
+<div class="grid" id="game"></div>
+
+<div id="puzzle">
+  <h2>Final Promise</h2>
+  <img src="https://i.imgur.com/3Xn7ZK4.png" width="220">
+  <p>I promise to always care for you, respect you, support you, and stay by your side in every situation ♥</p>
+</div>
+
+<script>
+
+const items = [
+"♥ I promise to always care for you",
+"♥ I promise to respect your feelings",
+"♥ I promise to make you smile",
+"♥ I promise to support you always",
+"♥ I promise to never ignore you",
+"♥ I promise to listen to you patiently",
+"♥ I promise to stand by you in tough times",
+"♥ I promise to be honest with you",
+"Puzzle","Puzzle","Puzzle","Puzzle"
+];
+
+items.sort(() => Math.random() - 0.5);
+
+let revealed=0;
+let score=0;
+let time=60;
+
+const game=document.getElementById("game");
+
+items.forEach(text=>{
+  let card=document.createElement("div");
+  card.className="card";
+
+  card.innerHTML=`
+  <div class="inner">
+    <div class="front">Tap</div>
+    <div class="back">${text}</div>
+  </div>`;
+
+  card.onclick=function(){
+    if(!card.classList.contains("flip")){
+      card.classList.add("flip");
+      revealed++;
+      score+=10;
+      document.getElementById("score").innerText=score;
+
+      if(revealed===items.length){
+        document.getElementById("puzzle").style.display="block";
+      }
+    }
+  };
+
+  game.appendChild(card);
+});
+
+/* Timer */
+setInterval(()=>{
+  if(time>0){
+    time--;
+    document.getElementById("timer").innerText=time;
+  }
+},1000);
+
+/* Floating Hearts */
+function heart(){
+  let h=document.createElement("div");
+  h.className="heart";
+  h.innerHTML="♥";
+  h.style.left=Math.random()*100+"vw";
+  h.style.fontSize=(20+Math.random()*20)+"px";
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),6000);
+}
+setInterval(heart,400);
+
+</script>
+
+</body>
+</html>
